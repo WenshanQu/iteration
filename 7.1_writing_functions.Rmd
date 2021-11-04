@@ -1,0 +1,179 @@
+---
+title: "writing_functions"
+author: "Wenshan Qu (wq2160)"
+date: "11/4/2021"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+
+## Z scores
+
+```{r}
+x_vec = rnorm(25, mean = 5, sd = 4)
+
+(x_vec - mean(x_vec)) / sd(x_vec)
+
+## Construct a function
+z_score = function(x) {
+  
+  z = (x - mean(x)) / sd(x)
+  
+  return(z)
+  
+}
+## Test our created function
+z_score(x = x_vec)
+
+## Test 2
+y_vec = rnorm(40, mean = 12, sd = .3)
+
+z_score(x = y_vec) ## More safe to use `x = `
+```
+
+
+How great is this?
+
+```{r, error = TRUE}
+z_score(3)
+
+z_score(mtcars)
+
+z_score(x = y_vec)
+```
+
+
+
+Modify our function: 
+
+```{r}
+z_score = function(x) {
+  
+  if(!is.numeric(x)) {
+    stop("x need to be numeric")
+  }
+  
+  if(length(x) < 3) {
+    stop("x should have at least 3 numbers")
+  }
+  
+  z = (x - mean(x)) / sd(x)
+  
+  return(z)
+  
+}
+```
+
+Test：
+
+```{r, error=TRUE}
+z_score(3)
+
+z_score(mtcars)
+
+z_score(x = y_vec)
+```
+
+How to output 2 results.
+
+```{r}
+mean_and_sd = function(x) {
+  
+  if(!is.numeric(x)) {
+    stop("x need to be numeric")
+  }
+  
+  if(length(x) < 3) {
+    stop("x should have at least 3 numbers")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  
+  output_df = 
+    tibble(
+      mean = mean_x,
+      sd = sd_x
+    )
+  
+  return(output_df)
+  
+}
+
+mean_and_sd(x_vec)
+mean_and_sd(x = y_vec)
+```
+
+you can use `rm(x)` to remove a `x` to ensure this function is reproducible.
+
+
+## Different sample sizes, means, sds
+
+```{r}
+sim_data = 
+  tibble(
+    x = rnorm(30, mean = 2, sd = 3)
+  )
+
+sim_data %>% 
+  summarize(
+    mean = mean(x),
+    sd = sd(x)
+  )
+
+
+```
+
+
+Let's write a function that simulates data, computes the mean and sd.
+
+```{r}
+## We want n, true mean and true sigma input
+sim_mean_sd = function(n, mu, sigma) {
+  
+  ## do checks on inputs
+
+sim_data = 
+  tibble(
+    x = rnorm(n, mean = mu, sd = sigma)
+  )
+
+sim_data %>% 
+  summarize(
+    mean = mean(x),
+    sd = sd(x)
+  )
+  
+}
+
+## R will default seen your data as in order. But using `n, mu, sigma` to specify them is great.
+sim_mean_sd(n = 30, mu = 4, sigma = 3)
+
+```
+
+Note: you need to pay attention on whether there is a same variable outside the function, bcs this will make your function useless. You should ensure that this function did not include any variable names that appears before.
+
+```{r}
+
+```
+
+
